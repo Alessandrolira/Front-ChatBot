@@ -35,9 +35,8 @@ export default function Home() {
 
           {Object.entries(dadosConversas)
             .sort((a, b) => {
-              // Converte "27/03/2025 13:31:00" para "2025-03-27T13:31:00"
               const parseDate = (dataString) => {
-                if (!dataString) return 0; // Evita erros se a data estiver vazia ou undefined
+                if (!dataString) return 0;
                 const [dia, mes, anoHora] = dataString.split('/');
                 const [ano, hora] = anoHora.split(' ');
                 return new Date(`${ano}-${mes}-${dia}T${hora}`).getTime();
@@ -45,12 +44,7 @@ export default function Home() {
 
               const ultimaMensagemA = parseDate(a[1].mensagens[a[1].mensagens.length - 1]?.data_hora);
               const ultimaMensagemB = parseDate(b[1].mensagens[b[1].mensagens.length - 1]?.data_hora);
-
-              console.log("Raw Data A:", a[1].mensagens[a[1].mensagens.length - 1]?.data_hora);
-              console.log("Raw Data B:", b[1].mensagens[b[1].mensagens.length - 1]?.data_hora);
-              console.log("Data A:", ultimaMensagemA, "Data B:", ultimaMensagemB);
-
-              return ultimaMensagemB - ultimaMensagemA; // Ordena da mais recente para a mais antiga
+              return ultimaMensagemB - ultimaMensagemA;
             })
             .map(([numero, dados]) => (
               <div key={numero} onClick={() => setSelectedNumber(numero)} className="cursor-pointer">
@@ -69,9 +63,7 @@ export default function Home() {
             <img src="/w3gLogo.png" alt="Logo da W3G" className="w-[80px] h-[70px] pb-[2.1em]" />
           </div>
 
-          {/* Exibir informações do contato selecionado */}
           {selectedNumber && (
-            
             <div>
               <Conversas nomeUser={dadosConversas[selectedNumber]?.nome || "Usuário Desconhecido"} numeroUser={selectedNumber}></Conversas>
             </div>
@@ -80,16 +72,30 @@ export default function Home() {
           <section className="h-[calc(100vh-2em-2em-70px-2em-3em-2em-1em)] overflow-y-auto">
             <div className="overflow-y-auto pt-[2em] p-[3em] scrollbar-thin scrollbar-thumb-[--cinza] scrollbar-track-[--preto]">
               {mensagensSelecionadas.length > 0 ? (
-                mensagensSelecionadas.map((mensagem, index) => (
-                  <>
-                    <Mensagens key={index} nome={dadosConversas[selectedNumber]?.nome} usuario={true} data={mensagem.data_hora}>
+                mensagensSelecionadas.reduce((acc, mensagem, index, array) => {
+                  const dataMensagem = mensagem.data_hora.split(' ')[0];
+                  const dataAnterior = index > 0 ? array[index - 1].data_hora.split(' ')[0] : null;
+                  
+                  if (dataMensagem !== dataAnterior) {
+                    acc.push(
+                      <div key={`date-${dataMensagem}`} className="text-center text-gray-300 my-2 border-b border-gray-300">
+                        {dataMensagem}
+                      </div>
+                    );
+                  }
+
+                  acc.push(
+                    <Mensagens key={`msg-${index}`} nome={dadosConversas[selectedNumber]?.nome} usuario={true} data={mensagem.data_hora}>
                       {mensagem.mensagem}
                     </Mensagens>
-                    <Mensagens key={index + 1} usuario={false} data={mensagem.data_hora}>
-                        {mensagem.resposta}
+                  );
+                  acc.push(
+                    <Mensagens key={`res-${index}`} usuario={false} data={mensagem.data_hora}>
+                      {mensagem.resposta}
                     </Mensagens>
-                  </>
-                ))
+                  );
+                  return acc;
+                }, [])
               ) : (
                 <p className="text-center text-gray-400">Selecione uma conversa para visualizar as mensagens</p>
               )}

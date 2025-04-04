@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Conversas from "./components/Conversas/Conversas";
 import Mensagens from "./components/Mensagens/Mensagens";
 
@@ -8,6 +8,7 @@ export default function Home() {
   const baseUrl = "http://localhost:5001/gerarjson";
   const [dadosConversas, setDadosConversas] = useState<any>({});
   const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -25,10 +26,13 @@ export default function Home() {
 
   const mensagensSelecionadas = selectedNumber ? dadosConversas[selectedNumber]?.mensagens || [] : [];
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="bg-(--preto) h-screen flex items-center justify-center p-[1em]">
       <div className="bg-(--cinza) w-full h-full rounded-lg flex">
-        {/* Lista de Conversas */}
         <div className="bg-(--cinza2) rounded-lg w-[28%] pt-[2em] pb-[1em] overflow-y-auto scrollbar-thin scrollbar-thumb-[--cinza] scrollbar-track-[--preto]">
           <h1 className="pl-[1em] text-[1.2em]">Agente IA - Consultor de Vendas</h1>
           <p className="text-[1.1em] pl-[1em] pt-[1.3em] pb-[1.3em]">Conversas em produção</p>
@@ -57,8 +61,7 @@ export default function Home() {
             ))}
         </div>
 
-        {/* Área de Mensagens */}
-        <div className="text-(--branco) w-[72%] rounded-lg flex flex-col">
+        <div className="text-(--branco) w-[72%] rounded-lg flex flex-col relative">
           <div className="flex justify-end p-[2em]">
             <img src="/w3gLogo.png" alt="Logo da W3G" className="w-[80px] h-[70px] pb-[2.1em]" />
           </div>
@@ -69,7 +72,7 @@ export default function Home() {
             </div>
           )}
 
-          <section className="h-[calc(100vh-2em-2em-70px-2em-3em-2em-1em)] overflow-y-auto">
+          <section className="h-[calc(100vh-2em-2em-70px-2em-3em-2em-1em)] overflow-y-auto relative">
             <div className="overflow-y-auto pt-[2em] p-[3em] scrollbar-thin scrollbar-thumb-[--cinza] scrollbar-track-[--preto]">
               {mensagensSelecionadas.length > 0 ? (
                 mensagensSelecionadas.reduce((acc, mensagem, index, array) => {
@@ -78,7 +81,7 @@ export default function Home() {
                   
                   if (dataMensagem !== dataAnterior) {
                     acc.push(
-                      <div key={`date-${dataMensagem}`} className="text-center text-gray-300 my-2 border-b border-gray-300">
+                      <div key={`date-${dataMensagem}`} className="text-center text-gray border-y my-[2em] my-2">
                         {dataMensagem}
                       </div>
                     );
@@ -99,7 +102,12 @@ export default function Home() {
               ) : (
                 <p className="text-center text-gray-400">Selecione uma conversa para visualizar as mensagens</p>
               )}
+              <div ref={messagesEndRef}></div>
             </div>
+
+            <button onClick={scrollToBottom} className="fixed top-43.5 right-10 bg-(--cinza) text-white p-3 rounded-full shadow-lg hover:bg-(--branco) transition cursor-pointer">
+              <img src="/arrow-down.png" alt="" />
+            </button>
           </section>
         </div>
       </div>

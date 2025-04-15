@@ -5,7 +5,7 @@ import Conversas from "./components/Conversas/Conversas";
 import Mensagens from "./components/Mensagens/Mensagens";
 
 export default function Home() {
-  const baseUrl = "http://localhost:5001/gerarjson";
+  const baseUrl = "http://192.168.15.105:5001/gerarjson";
   const [dadosConversas, setDadosConversas] = useState<any>({});
   const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
   const messagesEndRef = useRef(null);

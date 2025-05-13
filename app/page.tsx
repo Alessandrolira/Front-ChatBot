@@ -7,27 +7,81 @@ import { io, Socket } from "socket.io-client";
 
 export default function Home() {
 
+  const meuIp = "192.168.10.35:5001"
   const [isChecked, setIsChecked] = useState(true)
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [resposta, setResposta] = useState("");
+  const [dadosConversas, setDadosConversas] = useState<any>({});
+  const [dadosConversasBD, setDadosConversasBD] = useState<any>({});
+  const [selectedNumber, setSelectedNumber] = useState<string>("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleRequest = (e:any) => {
     const checked = e.target.checked
     setIsChecked(checked)
-    console.log(checked)
-}
+    let valor = 1
 
+    if (checked == true) {
+      valor = 1
+    } else {
+      valor = 0
+    }
+    
+    async function AlterarResponsavel() {
+      try {
+        const response = await fetch(`http://${meuIp}/AlterarResponsavel/${selectedNumber}/${valor}`)
+      } catch (error) {
+        console.error("Erro ao alterar o responsável:", error);
+      }
+    }
+    AlterarResponsavel();
+  }
 
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [mensagem, setMensagem] = useState("");
-  const [resposta, setResposta] = useState("");
+  const handleMessages = (nome_cliente: string) => {
+    const inputMensagem = (document.getElementById("inputMensagem") as HTMLInputElement)
+    
+    async function EnviandoMensagem(mensagem:string) {
+      const response = await fetch(`http://${meuIp}/EnviarMensagem/${selectedNumber}/${nome_cliente}/${mensagem}`)
+      inputMensagem.value = "" 
+      return response
+    }
 
-  const meuIp = "192.168.20.46:5001"
+    EnviandoMensagem(inputMensagem.value)
+  }
 
   const baseUrl = `http://${meuIp}/gerarjson`;
+  const baseUrlBD = `http://${meuIp}/buscarMensagens`
 
   const [mensagemEnviada, setMensagemEnviada] = useState(false);
 
   useEffect(() => {
-    const socketIo = io("http://localhost:5001");
+
+    if (selectedNumber == null) {
+      
+    } else {
+
+      async function ResponsavelNumero() {
+      const response = await fetch(`http://${meuIp}/Responsavel/${selectedNumber}`)
+      const data = await response.json();
+
+      console.log("Dados recebidos da API telefone:", data.Responsavel);
+
+      if (data.Responsavel) {
+        setIsChecked(true);
+      } else {
+        setIsChecked(false);
+      }
+    }
+
+    ResponsavelNumero();
+
+    }
+
+  }, [selectedNumber, resposta]);
+    
+  useEffect(() => {
+
+    const socketIo = io(`http://${meuIp}`);
     setSocket(socketIo);
   
     socketIo.on("connect", () => {
@@ -47,11 +101,8 @@ export default function Home() {
     return () => {
       socketIo.disconnect();
     };
+    
   }, []);
-  
-  const [dadosConversas, setDadosConversas] = useState<any>({});
-  const [selectedNumber, setSelectedNumber] = useState<string>("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
   
@@ -59,7 +110,7 @@ export default function Home() {
       try {
         const response = await fetch(baseUrl);
         const data = await response.json();
-        console.log("Dados recebidos da API:", data);
+        // console.log("Dados recebidos da API:", data);
         setDadosConversas(data.numeros || {});
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);
@@ -71,9 +122,31 @@ export default function Home() {
     // Após a execução do fetch, você reseta a mensagemEnviada para false
     setMensagemEnviada(false);
 
-  }, [mensagemEnviada]);  // Esse useEffect só é disparado quando mensagemEnviada for true
+    console.log("Dados recebidos da API:", dadosConversas);
+
+  }, [mensagemEnviada, resposta]);  // Esse useEffect só é disparado quando mensagemEnviada for true
+
+  useEffect(() => {
+    async function fetchDataBD() {
+      try {
+        const response = await fetch(baseUrlBD);
+        const data = await response.json();
+        // console.log("Dados recebidos do Banco de dados:", data);
+        setDadosConversasBD(data.numeros || {});
+        
+      }catch (error) {
+        console.error("Erro ao buscar os dados:", error);
+      }
+    }
+
+    fetchDataBD();
+
+    setMensagemEnviada(false);
+
+  }, [selectedNumber, resposta]); // Esse useEffect só é disparado quando selectedNumber for alterado
 
   const mensagensSelecionadas = selectedNumber ? dadosConversas[selectedNumber]?.mensagens || [] : [];
+  const mensagensSelecionadasBD = selectedNumber ? dadosConversasBD[selectedNumber]?.mensagens || [] : [];
 
   const scrollToBottom = () => {''
       if (messagesEndRef.current) {
@@ -88,7 +161,7 @@ export default function Home() {
           <h1 className="pl-[1em] text-[1.2em]">Agente IA - Consultor de Vendas</h1>
           <p className="text-[1.1em] pl-[1em] pt-[1.3em] pb-[1.3em]">Conversas em produção</p>
 
-          {Object.entries(dadosConversas)
+          {Object.entries(dadosConversasBD)
             .sort((a: any, b: any) => {
               const parseDate = (dataString:any) => {
                 if (!dataString) return 0;
@@ -119,13 +192,13 @@ export default function Home() {
 
           {selectedNumber && (
             <div>
-              <Conversas nomeUser={dadosConversas[selectedNumber]?.nome || "Usuário Desconhecido"} numeroUser={selectedNumber} numeroSelecionado={selectedNumber} funcaoScroll={scrollToBottom} checkado={isChecked} funcaoCheck={handleRequest}></Conversas>
+              <Conversas nomeUser={dadosConversasBD[selectedNumber]?.nome || "Usuário Desconhecido"} numeroUser={selectedNumber} numeroSelecionado={selectedNumber} funcaoScroll={scrollToBottom} checkado={isChecked} funcaoCheck={handleRequest}></Conversas>
             </div>
           )}
           <section className="h-[calc(100vh-2em-2em-3em-2em-1em)] overflow-y-auto relative">
             <div className="overflow-y-auto pt-[2em] p-[3em] scrollbar-thin scrollbar-thumb-[--cinza] scrollbar-track-[--preto]">
-              {mensagensSelecionadas.length > 0 ? (
-                mensagensSelecionadas.reduce((acc:any, mensagem:any, index:any, array:any) => {
+              {mensagensSelecionadasBD.length > 0 ? (
+                mensagensSelecionadasBD.reduce((acc:any, mensagem:any, index:any, array:any) => {
                   const dataMensagem = mensagem.data_hora.split(' ')[0];
                   const dataAnterior = index > 0 ? array[index - 1].data_hora.split(' ')[0] : null;
                   
@@ -137,13 +210,8 @@ export default function Home() {
                     );
                   }
                   acc.push(
-                    <Mensagens key={`msg-${index}`} nome={dadosConversas[selectedNumber]?.nome} usuario={true} data={mensagem.data_hora}>
+                    <Mensagens key={`msg-${index}`} nome={dadosConversasBD[selectedNumber]?.nome} data={mensagem.data_hora} responsavel={mensagem.responsavel}>
                       {mensagem.mensagem}
-                    </Mensagens>
-                  );
-                  acc.push(
-                    <Mensagens key={`res-${index}`} usuario={false} data={mensagem.data_hora}>
-                      {mensagem.resposta}
                     </Mensagens>
                   );
                   return acc;
@@ -156,8 +224,8 @@ export default function Home() {
             </div>
             {isChecked == false ? (
                 <div className="flex sticky bottom-1 pb-[1em] pt-[1em] z-10 w-full pr-[1em] bg-(--cinza)">
-                  <input placeholder="Escreva a mensagem aqui..." className="w-full rounded-2xl ml-2 p-3 bg-(--background)"/>
-                  <button className="text-[0.8em] bg-[#5fdd54] text-black rounded-2xl ml-2">Enviar Mensagem</button>
+                  <input id="inputMensagem" placeholder="Escreva a mensagem aqui..." className="w-full rounded-2xl ml-2 p-3 bg-(--background)"/>
+                  <button onClick={() => handleMessages(dadosConversas[selectedNumber]?.nome)} className="text-[0.8em] bg-[#5fdd54] text-black rounded-2xl ml-2">Enviar Mensagem</button>
                 </div >
               ) : (
               " "

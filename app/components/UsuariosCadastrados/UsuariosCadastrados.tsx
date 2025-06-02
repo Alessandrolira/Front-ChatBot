@@ -8,7 +8,8 @@ interface UsuarioCadastradosProps {
     nome: string;
     status: string;
     dataCriacao: string;
-    fila: number;
+    fila?: number;
+    key: number;
 }
 
 const meuIp = "192.168.20.46:5000"
@@ -51,11 +52,11 @@ export default function UsuariosCadastrados( { id, nome, status, dataCriacao,  f
     return (
         <div className="flex items-center mb-[2em]">
             <p className="text-[1.5em] font-bold w-[20%]">{nome}</p>
-            <div className="flex items-center w-[10%]">
+            <div className="flex items-center w-[20%]">
                 <div className={`h-[1em] w-[1em] ${ status == "Ativo" ? "bg-green-400" : "bg-amber-300"} rounded-full mr-[1em]`}></div>
                 <p>{status}</p>
             </div>
-            <p className="w-[20%]">Data de Criação: {dataCriacao}</p>
+            <p className="w-[30%]">Ultima atualização: {dataCriacao}</p>
             <p className="w-[15%]">Fila: {fila} contatos</p>
             <div className="flex gap-5">
                 <Link href={`/editarUsuario/${nome}`} id={`editar${id}`}>
@@ -64,9 +65,9 @@ export default function UsuariosCadastrados( { id, nome, status, dataCriacao,  f
                 <button onClick={handleEnviarFila} className="cursor-pointer">
                     <img src="/usuarios.png" alt="Trocar Fila" />
                 </button>
-                <button onClick={handleDelete} disabled={fila > 0} className={`${fila > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
+                { fila == undefined ? '' : <button onClick={handleDelete} disabled={fila > 0} className={`${fila > 0 ? "cursor-not-allowed" : "cursor-pointer"}`}>
                     <img src={`${fila > 0 ? '/lixeiradisable.png' : '/lixeira.png'}`} alt="Delete" />
-                </button>
+                </button>}
             </div>
             
         </div>

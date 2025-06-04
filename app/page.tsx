@@ -1,18 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Button from "./components/Button/Button";
 
+<<<<<<< HEAD
 const meuIp = "192.168.19.40:5001"
+=======
+const meuIp = process.env.NEXT_PUBLIC_API_URL
+    
+>>>>>>> b2ef9e19ce73711e48ff9954027475a39986b0dd
 
-const enviarDados = async (event: React.FormEvent<HTMLFormElement>) => {
+export default function Login() {
+
+    const router = useRouter();
+    const [mensagemAlerta, setMensagemAlerta] = useState("");
+
+    const enviarDados = async (event: React.FormEvent<HTMLFormElement>) => {
 
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email");
     const senha = formData.get("senha");
 
-    console.log(email)
-    console.log(senha)
+    if (sessionStorage.getItem('token') != '') {
+        router.push('/mensagensRecebidas')
+        return 200
+    }
 
     const response = await fetch(`http://${meuIp}/autenticarLogin`, {
         method: "POST",
@@ -23,16 +38,31 @@ const enviarDados = async (event: React.FormEvent<HTMLFormElement>) => {
     const data = await response.json();
 
     if (response.ok) {
-        console.log("Login bem-sucedido:", data);
+        if (data.Mensagem == "Usuário encontrado com sucesso") {
+            const usuario = data.Dados.nome_usuario
+            const acesso = data.Dados.acesso
+            const token = Buffer.from(`${usuario}.${data.Dados.senha}`).toString("base64")
+            
+            sessionStorage.setItem("token", token)
+            sessionStorage.setItem("usuario", usuario);
+            sessionStorage.setItem("acesso", acesso);
+            router.push("/mensagensRecebidas");
+        }
+        else {
+            setMensagemAlerta(data.Mensagem);
+        }
     } else {
-        alert(data.message || "Email ou senha incorretos")
+        alert(data.message)
     }
 }
-    
 
-export default function Login() {
     return (
         <div className="h-screen w-screen bg-[url('/background-login.png')] bg-cover bg-no-repeat bg-center flex items-center justify-center">
+            {mensagemAlerta && (
+                    <div className="bg-red-700 text-white p-2 rounded-md mb-4 absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+                        {mensagemAlerta}
+                    </div>
+                )}
             <div className="bg-[#373737] w-[40%] flex flex-col items-center justify-center p-[3em] rounded-lg shadow-lg shadow-black/30 z-10 relative inset-shadow-sm inset-shadow-black/30">
                 <div className="flex flex-row items-center">
                     <img src="/detalhe-logo.png" alt="" className="w-[7em] mr-[-2em] z-0" />
@@ -48,15 +78,13 @@ export default function Login() {
                         <input type="text" placeholder="Digite seu email..." className="bg-[#2B2B2B] w-full rounded-md py-[0.5em] pl-10 pr-[0.5em] text-[0.8em] font-bold text-[#6B6B6B] placeholder:text-[#6B6B6B] outline-none shadow-md shadow-black/30" id="email" name="email"/>
                     </div>
                     <div className="relative w-full mt-[1em] mb-[1em]">
-                        <img src="/mail.png" alt="Ícone de email" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
+                        <img src="/cadeado.png" alt="Ícone de email" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 opacity-60" />
                         <input type="password" placeholder="Digite sua senha..." className="bg-[#2B2B2B] w-full rounded-md py-[0.5em] pl-10 pr-[0.5em] text-[0.8em] font-bold text-[#6B6B6B] placeholder:text-[#6B6B6B] outline-none shadow-md shadow-black/30" id="senha" name="senha"/>
                     </div>
                     <div className="flex justify-end items-end w-full">
-                        <p className="text-[#6B6B6B] text-[0.8em]">Esqueceu a sua senha? <Link href="#" className="text-(--branco)">Redefinir</Link></p>
+                        <p className="text-[#6B6B6B] text-[0.8em] mb-[2em]">Esqueceu a sua senha? <Link href="#" className="text-(--branco)">Redefinir</Link></p>
                     </div>
-                    <button className="bg-[var(--azulw3)] mt-[2em] py-[0.5em] px-[1em] rounded-md text-white font-semibold shadow-md shadow-black/30 cursor-pointer hover:bg-[var(--azulw3-hover)] transition duration-300 ease-in-out inset-shadow-sm inset-shadow-black/30">
-                        Entrar
-                    </button>
+                    <Button>Entrar</Button>
                     <Link href="/mensagensRecebidas">Entrar no sistema de mensagens</Link>
                 </form>
             </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-const meuIp = "192.168.20.46:5000"
+const meuIp = "192.168.19.40:5001"
 
 const enviarDados = async (event: React.FormEvent<HTMLFormElement>) => {
 

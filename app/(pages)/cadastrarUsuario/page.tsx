@@ -9,7 +9,7 @@ function enviarCadastro(event: React.FormEvent<HTMLFormElement>) {
     const senha = document.querySelector('#senha') as HTMLInputElement;
     const confirmarSenha = document.querySelector('#confirmarSenha') as HTMLInputElement;
 
-    const meuIp = "192.168.20.46:5001"
+    const meuIp = "192.168.19.40:5001"
 
     if (!nome.value || !email.value || !senha.value || !confirmarSenha.value) {
         alert('Preencha todos os campos');

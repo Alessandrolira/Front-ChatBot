@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function Home() {
 
-  const meuIp = "192.168.20.46:5001"
+  const meuIp = "192.168.19.40:5001"
   const [isChecked, setIsChecked] = useState(true)
   const [socket, setSocket] = useState<Socket | null>(null);
   const [resposta, setResposta] = useState("");

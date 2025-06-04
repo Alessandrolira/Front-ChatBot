@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "./components/Button/Button";
 
-const meuIp = "192.168.19.40:5001"
+const meuIp = "localhost:5001"
 
 
 export default function Login() {

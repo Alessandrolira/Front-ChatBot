@@ -10,7 +10,7 @@ import Button from "@/app/components/Button/Button";
 
 export default function Home() {
 
-  const meuIp = "192.168.19.40:5001"
+  const meuIp = "localhost:5001"
 
   const [isChecked, setIsChecked] = useState(true)
   const [socket, setSocket] = useState<Socket | null>(null);

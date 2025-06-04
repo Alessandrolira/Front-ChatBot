@@ -1,46 +1,6 @@
 "use client"
-
-<<<<<<< HEAD
-function enviarCadastro(event: React.FormEvent<HTMLFormElement>) {
-
-    event?.preventDefault();
-
-    const nome = document.querySelector('#nome') as HTMLInputElement;
-    const email = document.querySelector('#email') as HTMLInputElement;
-    const senha = document.querySelector('#senha') as HTMLInputElement;
-    const confirmarSenha = document.querySelector('#confirmarSenha') as HTMLInputElement;
-
-    const meuIp = "192.168.19.40:5001"
-
-    if (!nome.value || !email.value || !senha.value || !confirmarSenha.value) {
-        alert('Preencha todos os campos');
-        return;
-    }
-
-    if (senha.value !== confirmarSenha.value) {
-        alert('As senhas não coincidem');
-        return;
-    }
-
-    const usuario = {
-        nome : nome.value,
-        email : email.value,
-        senha : senha.value
-    }
-
-    const response = async () => fetch(`http://${meuIp}/cadastrarUsuario`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(usuario)
-    })
-
-}
-=======
 import { useState } from "react";
 import Link from "next/link";
->>>>>>> b2ef9e19ce73711e48ff9954027475a39986b0dd
 
 export default function CadastrarUsuario() {
 

@@ -5,12 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "./components/Button/Button";
 
-<<<<<<< HEAD
 const meuIp = "192.168.19.40:5001"
-=======
-const meuIp = process.env.NEXT_PUBLIC_API_URL
-    
->>>>>>> b2ef9e19ce73711e48ff9954027475a39986b0dd
+
 
 export default function Login() {
 

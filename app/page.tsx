@@ -81,7 +81,6 @@ export default function Login() {
                         <p className="text-[#6B6B6B] text-[0.8em] mb-[2em]">Esqueceu a sua senha? <Link href="#" className="text-(--branco)">Redefinir</Link></p>
                     </div>
                     <Button>Entrar</Button>
-                    <Link href="/mensagensRecebidas">Entrar no sistema de mensagens</Link>
                 </form>
             </div>
         </div>

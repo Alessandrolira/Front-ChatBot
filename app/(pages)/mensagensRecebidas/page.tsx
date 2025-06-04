@@ -10,8 +10,8 @@ import Button from "@/app/components/Button/Button";
 
 export default function Home() {
 
-  const router = useRouter()
-  const meuIp = process.env.NEXT_PUBLIC_API_URL
+  const meuIp = "192.168.19.40:5001"
+
   const [isChecked, setIsChecked] = useState(true)
   const [socket, setSocket] = useState<Socket | null>(null);
   const [resposta, setResposta] = useState("");
@@ -24,12 +24,9 @@ export default function Home() {
 
   useEffect(() => {
 
-    if (sessionStorage.getItem("token") == '') {
-      router.push("/");
-      return;
-    } else {
       async function fetchDataBD() {
         try {
+          const baseUrlBD = `http://${meuIp}/buscarMensagens`;
           const response = await fetch(baseUrlBD);
           const data = await response.json();
           // console.log("Dados recebidos do Banco de dados:", data);
@@ -40,8 +37,7 @@ export default function Home() {
         }
       }
       fetchDataBD();
-    }
-  }, [selectedNumber, resposta]); // Esse useEffect só é disparado quando selectedNumber for alterado
+    }, [selectedNumber, resposta]); // Esse useEffect só é disparado quando selectedNumber for alterado
 
   useEffect(() => {
 
@@ -137,13 +133,6 @@ export default function Home() {
     }
   };
 
-  function sair() {
-    sessionStorage.setItem("token", '')
-    sessionStorage.setItem("usuario", '')
-    sessionStorage.setItem("acesso", '')
-    router.push("/")
-  }
-
   return (
     <div className="bg-(--preto) h-screen flex items-center justify-center p-[1em]">
       <div className="bg-(--cinza) w-full h-full rounded-lg flex">
@@ -176,7 +165,6 @@ export default function Home() {
 
         <div className="text-(--branco) w-[72%] rounded-lg flex flex-col relative">
           <div className="flex justify-end p-[2em] items-center">
-            <Button onclick={sair}>Sair</Button>
             <Link href="/usuario"><div className="ml-[2em] rounded-full w-[3em] h-[3em] bg-(--background) mr-[2em] flex items-center justify-center shadow-lg shadow-black cursor-pointer transition duration-300 ease-in-out inset-shadow-sm inset-shadow-black/30 hover:bg-[var(--azulw3-hover)]">
               <img src="/user.png" alt="Usuarios" className="p-3" />
             </div></Link>

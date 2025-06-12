@@ -10,7 +10,7 @@ import Button from "@/app/components/Button/Button";
 
 export default function Home() {
 
-  const meuIp = "localhost:5001"
+  const meuIp = "192.168.10.3:5001"
 
   const [isChecked, setIsChecked] = useState(true)
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -123,7 +123,6 @@ export default function Home() {
 
   const baseUrlBD = `http://${meuIp}/buscarMensagens`
 
-
   const mensagensSelecionadasBD = selectedNumber ? dadosConversasBD[selectedNumber]?.mensagens || [] : [];
 
   const scrollToBottom = () => {
@@ -132,6 +131,10 @@ export default function Home() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [mensagensSelecionadasBD]);
 
   return (
     <div className="bg-(--preto) h-screen flex items-center justify-center p-[1em]">
@@ -205,7 +208,7 @@ export default function Home() {
             </div>
             {isChecked == false ? (
               <div className="flex sticky bottom-1 pb-[1em] pt-[1em] z-10 w-full pr-[1em] bg-(--cinza)">
-                <input id="inputMensagem" placeholder="Escreva a mensagem aqui..." className="w-full rounded-2xl ml-2 p-3 bg-(--background)" />
+                <textarea id="inputMensagem" placeholder="Escreva a mensagem aqui..." className="w-full rounded-2xl ml-2 p-3 bg-(--background) max-h-[4em]" />
                 <button onClick={() => handleMessages(dadosConversas[selectedNumber]?.nome)} className="text-[0.8em] bg-[#5fdd54] text-black rounded-2xl ml-2">Enviar Mensagem</button>
               </div >
             ) : (

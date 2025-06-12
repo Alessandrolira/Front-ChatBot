@@ -5,6 +5,8 @@ import Conversas from "@/app/components/Conversas/Conversas";
 import Mensagens from "@/app/components/Mensagens/Mensagens";
 import { io, Socket } from "socket.io-client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Button from "@/app/components/Button/Button";
 
 export default function Home() {
 
@@ -17,6 +19,8 @@ export default function Home() {
   const [dadosConversasBD, setDadosConversasBD] = useState<any>({});
   const [selectedNumber, setSelectedNumber] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userToken, setUserToken] = useState<string | null>(null)
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   useEffect(() => {
 
@@ -119,6 +123,7 @@ export default function Home() {
 
   const baseUrlBD = `http://${meuIp}/buscarMensagens`
 
+
   const mensagensSelecionadasBD = selectedNumber ? dadosConversasBD[selectedNumber]?.mensagens || [] : [];
 
   const scrollToBottom = () => {
@@ -127,10 +132,6 @@ export default function Home() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [mensagensSelecionadasBD]);
 
   return (
     <div className="bg-(--preto) h-screen flex items-center justify-center p-[1em]">
@@ -203,23 +204,8 @@ export default function Home() {
               <div ref={messagesEndRef}></div>
             </div>
             {isChecked == false ? (
-              <div className="flex sticky bottom-1 pb-[1em] pt-[1em] z-10 w-full pr-[1em]">
-              <textarea
-                id="inputMensagem"
-                placeholder="Escreva a mensagem aqui..."
-                className="w-full rounded-2xl ml-2 p-3 resize-none overflow-auto max-h-[4.5rem] bg-[var(--background)]"
-                rows={1}
-                onInput={(e) => {
-                  e.target.style.height = 'auto';
-                  e.target.style.height = `${e.target.scrollHeight}px`;
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleMessages(dadosConversas[selectedNumber]?.nome);
-                  }
-                }}
-              ></textarea>
+              <div className="flex sticky bottom-1 pb-[1em] pt-[1em] z-10 w-full pr-[1em] bg-(--cinza)">
+                <input id="inputMensagem" placeholder="Escreva a mensagem aqui..." className="w-full rounded-2xl ml-2 p-3 bg-(--background)" />
                 <button onClick={() => handleMessages(dadosConversas[selectedNumber]?.nome)} className="text-[0.8em] bg-[#5fdd54] text-black rounded-2xl ml-2">Enviar Mensagem</button>
               </div >
             ) : (
